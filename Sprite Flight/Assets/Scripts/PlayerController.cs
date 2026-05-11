@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
         highScore = PlayerPrefs.GetInt("HighScore", 0);
 
         highScoreText.text = "High Score: " + highScore;
-        highScoreText.style.display = DisplayStyle.None; // ADDED
+        highScoreText.style.display = DisplayStyle.None; 
 
         restartButton = uiDocument.rootVisualElement.Q<Button>("RestartButton");
         restartButton.style.display = DisplayStyle.None;
@@ -75,7 +75,7 @@ public class PlayerController : MonoBehaviour
         Destroy(gameObject);
         Instantiate(explosionEffect, transform.position, transform.rotation);
         restartButton.style.display = DisplayStyle.Flex;
-        highScoreText.style.display = DisplayStyle.Flex; // ADDED
+        highScoreText.style.display = DisplayStyle.Flex; 
     }
 
     void ReloadScene()
