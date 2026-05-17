@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour
     private Label scoreText;
     private Button restartButton;
     public GameObject explosionEffect;
+    public GameObject boosterFlame;
+    public GameObject borderParent;
 
     void Start()
     {
@@ -46,18 +48,53 @@ public class PlayerController : MonoBehaviour
 
         highScoreText.text = "High Score: " + highScore;
 
-        if (Mouse.current.leftButton.isPressed)
+        // MOBILE + PC INPUT
+        bool isPressing = false;
+        Vector2 pointerPosition = Vector2.zero;
+
+        // TOUCH
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
         {
-
-            // Calculate mouse direction
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.value);
-            Vector2 direction = (mousePos - transform.position).normalized;
-
-            // Move player in direction of mouse
-            transform.up = direction;
-            rb.AddForce(direction * thrustForce);
+            isPressing = true;
+            pointerPosition = Touchscreen.current.primaryTouch.position.ReadValue();
         }
 
+        // MOUSE
+        else if (Mouse.current != null && Mouse.current.leftButton.isPressed)
+        {
+            isPressing = true;
+            pointerPosition = Mouse.current.position.ReadValue();
+        }
+
+        // BOOSTER ON
+        if (isPressing)
+        {
+            if (!boosterFlame.activeSelf)
+            {
+                boosterFlame.SetActive(true);
+            }
+
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(pointerPosition);
+            mousePos.z = 0f;
+
+            Vector2 direction = (mousePos - transform.position).normalized;
+
+            transform.up = direction;
+
+            rb.AddForce(direction * thrustForce);
+
+            // LIMIT SPEED
+            rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity, 10f);
+        }
+
+        // BOOSTER OFF
+        else
+        {
+            if (boosterFlame.activeSelf)
+            {
+                boosterFlame.SetActive(false);
+            }
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -71,7 +108,7 @@ public class PlayerController : MonoBehaviour
             PlayerPrefs.SetInt("HighScore", highScore);
             PlayerPrefs.Save();
         }
-
+        borderParent.SetActive(false);
         Destroy(gameObject);
         Instantiate(explosionEffect, transform.position, transform.rotation);
         restartButton.style.display = DisplayStyle.Flex;
