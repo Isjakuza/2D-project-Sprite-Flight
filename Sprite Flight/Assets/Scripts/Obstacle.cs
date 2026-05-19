@@ -8,6 +8,9 @@ public class Obstacle : MonoBehaviour
     public float maxSpeed = 150f;
     public float maxSpinSpeed = 10f;
 
+    [Header("Shield Bounce Settings")]
+    public float bounceForce = 300f;
+
     Rigidbody2D rb;
     void Start()
     {
@@ -26,6 +29,25 @@ public class Obstacle : MonoBehaviour
 
     void Update()
     {
-        
+
+    }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.name == "ShieldVisual" && other.gameObject.activeInHierarchy)
+        {
+            PlayerController player = other.GetComponentInParent<PlayerController>();
+
+            if (player != null && player.hasShield)
+            {
+                if (rb != null)
+                {
+                    Vector2 bounceDirection = (transform.position - other.transform.position).normalized;
+                    rb.linearVelocity = Vector2.zero;
+                    rb.AddForce(bounceDirection * bounceForce);
+                    float randomSpin = Random.Range(-100f, 100f);
+                    rb.AddTorque(randomSpin);
+                }
+            }
+        }
     }
 }
